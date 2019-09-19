@@ -1,31 +1,58 @@
-console.log('%c HI', 'color: firebrick')
+window.addEventListener('DOMContentLoaded', (event) => {
 
-getDoggos();
+    // FETCH
+    //----------------------------------------
+    fetch("https://dog.ceo/api/breeds/image/random/4")
+        .then(response => response.json())
+        .then(data => addImages(data))
+    // implicitly returns bc we're in an arrow function
 
-function getDoggos() {
-    dogs = fetch("https://dog.ceo/api/breeds/image/random/4")
-    .then(response => response.json())
-    .then(data => addImages(data))
-    return dogs
-}
+    fetch('https://dog.ceo/api/breeds/list/all')
+        .then(response => response.json())
+        .then(data => addBreeds(data, breedsCont))
 
-// fetch("https://dog.ceo/api/breeds/image/random/4")
-//     .then((response) => response.json())
-//     .then(data => addImages(data))
 
-function addImages(data) {
-    const imgLinks = data["message"]
-    const container = document.querySelector("div#dog-image-container")
+    // ADD
+    //----------------------------------------
+    const breedsCont = document.getElementById("dog-breeds")
+    const allBreeds = []
 
-    imgLinks.forEach(element => {
-        container.insertAdjacentHTML('beforeend', `<img src= ${element}></img>` )
-    });
-}
+    function addBreeds(data, breedsCont) {
+        const breeds = data["message"]
 
-// function addImages(data) {
-//     const container = document.querySelector("#dog-image-container")
-//     myLis = data["message"]
-//     myLis.forEach((li) => {
-//         container.insertAdjacentHTML('beforeend', `<img src= ${li}></img>`)
-//     })
-// }
+        for (let breed in breeds) {
+            allBreeds.unshift(breed)
+            breedsCont.insertAdjacentHTML("beforeend", `<li>${breed}</li>`)
+        }
+    }
+    function addImages(data) {
+        const imgLinks = data["message"]
+        const container = document.querySelector("div#dog-image-container")
+
+        imgLinks.forEach(element => {
+            container.insertAdjacentHTML('beforeend', `<img src= ${element}></img>`)
+        });
+    }
+
+    // RE-COLORIZE
+    //----------------------------------------
+    document.addEventListener("click", function(e) {
+        e.target.style.color = "magenta"
+    })
+
+    // SEARCH
+    //----------------------------------------
+    const dropdown = document.querySelector("#breed-dropdown")
+    dropdown.addEventListener("change", function(event){
+        matches = []
+        filterLetter = event.target.value
+        allBreeds.forEach(breed => {
+            if ( breed[0] === filterLetter) { matches.push(breed) }
+        })
+        breedsCont.innerHTML = ""
+        matches.forEach(e => {
+            breedsCont.insertAdjacentHTML("beforeend", `<li>${e}</li>`)
+        })
+    })
+
+});
